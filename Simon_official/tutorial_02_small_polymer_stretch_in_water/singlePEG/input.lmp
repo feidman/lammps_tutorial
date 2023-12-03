@@ -1,0 +1,42 @@
+###############
+# lammps input script
+# by simon
+
+############
+# init
+units real
+atom_style  full
+bond_style  harmonic
+angle_style charmm
+dihedral_style charmm
+pair_style lj/cut/tip4p/long 1 2 1 1 0.1546 12.0
+kspace_style pppm/tip4p 1.0e-4
+
+
+special_bonds   lj 0.0 0.0 0.5
+
+read_data   init.data
+include ../PARM.lmp
+
+dump mydmp all atom 10 dump.eq.lammpstrj
+thermo 1
+
+minimize 1.0e-4 1.0e-6 1000 10000
+
+undump mydmp
+reset_timestep 0
+
+# PEG is then equilibrated in the NVT ensemble
+# fix NVE + temp control = NVT
+fix mynve all nve
+fix myber all temp/berendsen 300 300 100
+
+dump mydmp all atom 1000 dump.lammpstrj
+thermo 1000
+variable mytemp equal temp
+fix myat1 all ave/time 10 10 100 v_mytemp file temperature.dat
+
+
+timestep 1
+run 100000
+write_data PEG.data

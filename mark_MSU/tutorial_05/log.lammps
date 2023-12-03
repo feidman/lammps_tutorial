@@ -1,0 +1,21 @@
+LAMMPS (3 Nov 2022)
+###################################
+# Lammps input script
+# polymer chain tutorial
+# Mark Tschopp
+#
+
+###################################
+# var
+variable fname index PE_cl100.txt
+variable simname index PE_c1100
+
+
+
+###################################
+# Init
+units real
+boundary f f f
+atom_style molecular
+log log.${simname}.txt
+log log.PE_c1100.txt

@@ -1,0 +1,77 @@
+# Lammps tutorial 01
+#
+# //
+# https://lammpstutorials.github.io/tutorials/01-SimpleMolecularSimulation.html
+# //
+#
+# modified with some comments about LJ potential
+# // 
+# https://zhuanlan.zhihu.com/p/507732683
+# //
+#
+# 2022.10.4
+# ////////////////////////////////////////////
+# PART A - Energy MINIMIZATION
+# 1) Initialization
+units lj
+dimension 2
+atom_style atomic
+pair_style lj/cut 2.5 # comm: lammps 中的LJ势能会做一个cut，原因是Lj本身会延伸到无穷远，导致每个原子都必须考虑和其它所有原子（而不是邻近原子）的相互作用力，因此计算量会很大，cut半径一般是2.5 sigma，此处LJ势能已经接近0了
+
+boundary p p p
+
+# 2) System definition
+region myreg block -30 30 -30 30 -0.5 0.5
+create_box 2 myreg
+create_atoms 1 random 1500 341341 myreg
+create_atoms 2 random 100 127569 myreg
+
+
+# 3) Simulation settings
+mass 1 1
+mass 2 1
+# pair_style lj/smooth/linear 2.5 # comm: this command was not supported, Nov 29 2023
+pair_coeff 1 1 1.0 1.0 
+pair_coeff 2 2 0.5 3.0
+
+pair_modify shift yes # from comm:
+
+# 如果邻居中的粒子已经不在r_c+skin范围内了，那么邻居列表就必须要更新了。当需要更新而未更新时就会出现Dangerous builds
+# During the simulation, they have been 998 dangerous builds. This is an indication that something is wrong: some atoms have moved more than expected in between two calculations of the neighbor lists. Let us add the following command in the 'Simulation settings' section:
+neigh_modify every 1 delay 5 check yes
+
+# 4) Visualization
+thermo 10
+## // print thermo dynamics every 10 timestep
+
+thermo_style custom step temp pe ke etotal press
+
+# 5) Run
+minimize 1.0e-4 1.0e-6 1000 10000
+
+## // explanation: About energy minimization An energy minimization consists in adjusting the coordinates of the atoms until one of the stopping criteria is reached. Here there are four stopping criteria:
+## 1 - The change in energy between two iterations is less than 1.0e-4,
+## 2 - the maximum force between two atoms in the system is lower than 1.0e-6,
+## 3 - the maximum number of iterations is 1000,
+## 4 - the maximum number of times the force and the energy have been evaluated is 10000.
+
+
+# PART B - MOLECULAR DYNAMICS
+# 4) Visualization
+thermo 100
+variable kinetic_energy equal ke
+variable potential_energy equal pe
+variable pressure equal press
+
+#fix myat1 all ave/time 10 1 10 ke pe press file energy_new.dat (Error)
+#fix myat1 all ave/time 10 1 10 v_kinetic_energy v_potential_energy v_pressure file energy.dat
+#fix myat1 all ave/time  2 5 10 v_kinetic_energy v_potential_energy v_pressure file energy_new.dat
+# for visualization
+#dump mydmp all atom 1000 dump.lammpstrj
+
+# 5) Run
+fix mynve all nve
+fix mylgv all langevin 1.0 1.0 0.1 15308873
+fix myefn all enforce2d
+timestep 0.005
+run 10000

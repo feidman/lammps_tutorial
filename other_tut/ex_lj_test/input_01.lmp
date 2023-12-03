@@ -1,0 +1,60 @@
+# used for LJ potential test
+# following the blog: https://zhuanlan.zhihu.com/p/507732683
+# as the blog:
+
+#  **********
+# with pair_modify shift yes: the energy result 是连续的, 但force是不连续的
+# with pair_style lj/smooth/linear 2.5 used,则两者都将是连续的 
+#
+# 自己测试的结果是不管用不用这两语句结果都是能量连续而力不连续
+# 2022.10.18
+#
+# *********
+
+# Lammps tutorial 01
+# //
+# https://lammpstutorials.github.io/tutorials/01-SimpleMolecularSimulation.html
+# //
+# 2022.10.19
+# ////////////////////////////////////////////
+
+
+
+
+# PART A - Energy MINIMIZATION
+# 1) Initialization
+units lj
+dimension 2
+atom_style atomic
+pair_style lj/smooth/linear 2.5 # comm: 
+#pair_style lj/cut 2.5 # comm: lammps 中的LJ势能会做一个cut，原因是Lj本身会延伸到无穷远，导致每个原子都必须考虑和其它所有原子（而不是邻近原子）的相互作用力，因此计算量会很大，cut半径一般是2.5 sigma，此处LJ势能已经接近0了
+
+boundary p p p
+
+# 2) System definition
+region myreg block -30 30 -30 30 -0.5 0.5
+create_box 2 myreg
+create_atoms 1 random 1500 341341 myreg
+create_atoms 2 random 100 127569 myreg
+
+
+# 3) Simulation settings
+mass 1 1
+mass 2 1
+pair_coeff * * 1.0 1.0 
+pair_coeff 2 2 0.5 3.0
+
+#pair_modify shift yes # from comm:
+
+# 如果邻居中的粒子已经不在r_c+skin范围内了，那么邻居列表就必须要更新了。当需要更新而未更新时就会出现Dangerous builds
+# During the simulation, they have been 998 dangerous builds. This is an indication that something is wrong: some atoms have moved more than expected in between two calculations of the neighbor lists. Let us add the following command in the 'Simulation settings' section:
+neigh_modify every 1 delay 5 check yes
+
+# 4) Visualization
+thermo 10
+pair_write 1 1 500 r 2.3 2.6 table.txt LJ
+## // print thermo dynamics every 10 timestep
+
+# 5) Run
+minimize 1.0e-4 1.0e-6 1000 10000
+

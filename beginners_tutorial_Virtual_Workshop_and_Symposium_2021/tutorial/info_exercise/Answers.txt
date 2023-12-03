@@ -1,0 +1,107 @@
+Answers for Exercise info
+
+See REAMDE.txt for tasks
+
+-------------------
+-------------------
+
+(1) Use the LAMMPS website
+
+(a) MD/LAMMPS glossary -> Stillinger-Weber potenial -> pair sw
+    https://docs.lammps.org/Howto_viscosity.html
+
+(b) MD/LAMMPS glossary -> viscosity -> Howto viscosity
+    https://docs.lammps.org/pair_sw.html
+
+(c) Menu entry for Tutorials lists several
+    Workshops -> click a year, look for tutorial in program
+
+(d) Publications menu entry, use Browser page search (Ctrl-F in Firefox) 
+    to search for "Karniadakis", finds 18 hits, abstracts can be clicked on
+
+(e) Publications menu entry, use Browser page search (Ctrl-F in Firefox) 
+    to search for "metallic glasses", finds many, many hits
+
+(f) Menu entries for Pre-Post processing and External packages & tools
+
+(g) Menu entry for Mail list
+
+(h) Menu entry for MatSci forum
+
+(i) Menu entry for Movies
+    click on small image icon, read the description,
+    some of the images are bigger images, some are movies
+
+-------------------
+
+(2) Use the User Guide portion of the LAMMPS manual
+
+(a) Section 3 of User Guide
+    https://docs.lammps.org/Howto_tip4p.html
+
+(a) Section 4.2 of User Guide
+    https://docs.lammps.org/Run_options.html
+
+(c) Section 8.1.3 of User Guide
+    https://docs.lammps.org/Howto_multiple.html
+
+(d) Section 8.4.3 of User Guide
+    https://docs.lammps.org/Howto_tip4p.html
+
+(d) Section 6.1 of User Guide, click on any package name
+    https://docs.lammps.org/Packages_list.html
+
+(f) Section 11.4 of User Guide, browser search (Ctrl-F) for "out of range"
+    read the paragraph about it
+
+-------------------
+
+(3) Use the Programmer Guide portion of the LAMMPS manual
+
+(a) For C/C++: Section 1.1.1 of the Programmer Guide
+    https://docs.lammps.org/Library_create.html
+
+    For Python: Section 2.3.4 of the Programmer Guide
+    https://docs.lammps.org/Python_create.html
+
+-------------------
+
+(4) Use the LAMMPS command webpage (inside the manual)
+
+(a) Click on units in General commands table
+    https://docs.lammps.org/units.html
+
+(b) Click on Compute styles to see a table of compute styles
+    https://docs.lammps.org/Commands_compute.html
+
+(c) Click on compute in General commands table, scroll down the page
+    https://docs.lammps.org/compute.html
+
+(d) Click on Pair styles, click on eam in pair table
+    https://docs.lammps.org/pair_eam.html
+
+-------------------
+
+(5) Use Google search bars on the LAMMPS website
+
+(a) Type "pair eam" in the search bar on the LAMMPS home page
+    many hits come up, the first one is to the pair_style eam doc page
+
+(b) Type "metallic glass Mg Zn" in the search bar on the LAMMPS home page
+    3 hits come up, 2 of them to paper abstracts on the LAMMPS website
+
+(c) Type "fix rigid" in the search bar on the LAMMPS Mail list page
+    many, many hits come up, all the LAMMPS maillist Qs and As
+
+-------------------
+
+(6) Use Google directly
+
+(a) Type "LAMMPS units command" into Google
+    1st hit: https://docs.lammps.org/units.html
+
+(b) Type "compute cna/atom" into Google
+    1st hit: https://docs.lammps.org/compute_cna_atom.html
+
+(c) Type "lammps-users fix rigid" into Google
+    hits with sourceforce.net or matsci.org are mail list messages

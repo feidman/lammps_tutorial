@@ -1,0 +1,59 @@
+LAMMPS (29 Oct 2020)
+#Global settings:
+
+dimension 2
+boundary p s p
+atom_style atomic
+neighbor 0.3 bin
+neigh_modify delay 5
+timestep 0.0025
+
+# Create box and atoms:
+lattice hex 0.9
+Lattice spacing in x,y,z = 1.1326962 1.9618873 1.1326962
+region box block 0 50 0 22 -0.25 0.25
+create_box 4 box
+Created orthogonal box = (0.0000000 0.0000000 -0.28317404) to (56.634808 43.161521 0.28317404)
+  1 by 1 by 1 MPI processor grid
+region lo-fixed block INF INF INF 1.1 INF INF
+region lo-slab block INF INF INF 7 INF INF
+region above-lo block INF INF INF 7 INF INF side out
+region hi-fixed block INF INF 20.9 INF INF INF
+region hi-slab block INF INF 15 INF INF INF
+region below-hi block INF INF 15 INF INF INF side out
+create_atoms 1 region lo-slab
+Created 750 atoms
+  create_atoms CPU = 0.000 seconds
+create_atoms 1 region hi-slab
+Created 750 atoms
+  create_atoms CPU = 0.000 seconds
+
+# Define groups:
+group lo region lo-slab
+750 atoms in group lo
+group lo type 2
+750 atoms in group lo
+group hi region hi-slab
+750 atoms in group hi
+group hi type 3
+750 atoms in group hi
+group lo-fixed region lo-fixed
+150 atoms in group lo-fixed
+group hi-fixed region hi-fixed
+150 atoms in group hi-fixed
+group boundary union lo-fixed hi-fixed
+300 atoms in group boundary
+group mobile subtract all boundary
+1200 atoms in group mobile
+
+# Set atom attributes:
+set group lo-fixed type 4
+Setting atom values ...
+  150 settings made for type
+set group hi-fixed type 4
+Setting atom values ...
+  150 settings made for type
+mass * 1.0
+velocity mobile create 1 482748 temp ydim
+ERROR: Could not find velocity temperature ID (../velocity.cpp:869)
+Last command: velocity mobile create 1 482748 temp ydim

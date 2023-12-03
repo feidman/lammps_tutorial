@@ -1,0 +1,136 @@
+LAMMPS (3 Nov 2022)
+# System Generation
+
+## Initialization
+units   real
+atom_style full
+bond_style harmonic
+angle_style harmonic
+pair_style lj/cut/tip4p/long 1 2 1 1 0.1546 12.0
+kspace_style pppm/tip4p 1.0e-4
+
+
+## system definition
+lattice     fcc 4.04
+Lattice spacing in x,y,z = 4.04 4.04 4.04
+region      box block -4 4 -4 4 -13 13
+create_box  5 box             bond/types 1             angle/types 1             extra/bond/per/atom 4             extra/angle/per/atom 2             extra/special/per/atom 4
+Created orthogonal box = (-16.16 -16.16 -52.52) to (16.16 16.16 52.52)
+  1 by 1 by 1 MPI processor grid
+
+# --------  settings
+include     PARM.lammps
+# Parameter file
+mass            1 15.9994 # water O
+mass            2 1.008 # water H
+mass            3 28.990    # ion Na
+mass            4 35.453    # ion Cl
+mass            5 26.9815   # wall atom
+
+pair_coeff      1 1 0.185199 3.1589 # water
+pair_coeff      2 2 0.0 0.0         # water
+pair_coeff      3 3 0.04690 2.4299 # ion
+pair_coeff      4 4 0.15000 4.04470 # ion
+pair_coeff      5 5 11.6970 2.574 # wall
+
+bond_coeff      1 0 0.9572 # water
+
+angle_coeff     1 0 104.52 # water
+
+#pair_modify shift yes
+neigh_modify every 1 delay 0 check yes
+
+# --------  create walls
+region      rbotwall block -4 4 -4 4 -12 -10
+region      rtopwall block -4 4 -4 4 10 12
+region      rwall union 2 rbotwall rtopwall
+create_atoms 5 region rwall
+Created 1280 atoms
+  using lattice units in orthogonal box = (-16.16 -16.16 -52.52) to (16.16 16.16 52.52)
+  create_atoms CPU = 0.002 seconds
+
+# --------  create the fluid
+region      rliquid block -4 4 -4 4 -9 9
+molecule    h2omol TIP4P2005.txt
+Read molecule template h2omol:
+  1 molecules
+  0 fragments
+  3 atoms with max type 2
+  2 bonds with max type 1
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+lattice     sc 4.04
+Lattice spacing in x,y,z = 4.04 4.04 4.04
+create_atoms    0 region rliquid mol h2omol 4345793
+Created 3648 atoms
+  using lattice units in orthogonal box = (-16.16 -16.16 -52.52) to (16.16 16.16 52.52)
+  create_atoms CPU = 0.001 seconds
+
+# --------  deposit 20 ions(10 Na+, 10 Cl-) in between the water molecule
+fix         mydep1 all deposit 100 3 1 56513 region rliquid near 0.3
+fix         mydep2 all deposit 100 4 1 58613 region rliquid near 0.3
+
+
+# --------  run
+timestep    1
+run         100
+WARNING: No fixes with time integration, atoms won't move (src/verlet.cpp:60)
+PPPM initialization ...
+  extracting TIP4P info from pair style
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.21735333
+  grid = 15 15 36
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.02924706
+  estimated relative force accuracy = 8.8076653e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 19844 8100
+WARNING: Communication cutoff 0 is shorter than a bond length based estimate of 3.4358. This may lead to errors. (src/comm.cpp:723)
+WARNING: Increasing communication cutoff to 15.1118 for TIP4P pair style (src/KSPACE/pair_lj_cut_tip4p_long.cpp:484)
+Generated 10 of 10 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14.3092
+  ghost atom cutoff = 15.1118
+  binsize = 7.1546, bins = 5 5 15
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/tip4p/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 22.53 | 22.53 | 22.53 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0             -106555.07      0             -106555.07     -19984.419    
+       100   0              675119.87      0              675119.87      1940620      
+Loop time of 4.89939 on 1 procs for 100 steps with 5128 atoms
+
+Performance: 1.763 ns/day, 13.609 hours/ns, 20.411 timesteps/s, 104.666 katom-step/s
+99.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2.1676     | 2.1676     | 2.1676     |   0.0 | 44.24
+Bond    | 0.0074967  | 0.0074967  | 0.0074967  |   0.0 |  0.15
+Kspace  | 0.2151     | 0.2151     | 0.2151     |   0.0 |  4.39
+Neigh   | 2.4643     | 2.4643     | 2.4643     |   0.0 | 50.30
+Comm    | 0.027891   | 0.027891   | 0.027891   |   0.0 |  0.57
+Output  | 3.3867e-05 | 3.3867e-05 | 3.3867e-05 |   0.0 |  0.00
+Modify  | 0.014072   | 0.014072   | 0.014072   |   0.0 |  0.29
+Other   |            | 0.002872   |            |       |  0.06
+
+Nlocal:           5128 ave        5128 max        5128 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          18075 ave       18075 max       18075 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.47584e+06 ave 1.47584e+06 max 1.47584e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1475838
+Ave neighs/atom = 287.79992
+Ave special neighs/atom = 1.4227769
+Neighbor list builds = 100
+Dangerous builds = 0

@@ -1,0 +1,33 @@
+units           metal
+boundary        p p p
+dimension       3
+atom_style      atomic
+neighbor        2 bin
+neigh_modify    every 5 delay 0
+timestep        0.001
+#建模
+lattice         fcc 3.61
+region          box block -35 35 -35 35 0 40 units box
+create_box      3 box
+region          bot block INF INF INF INF INF 8 units box
+create_atoms    1 region bot
+region          ball sphere -22 0 18 8 units box
+create_atoms    2 region ball
+region          s1 cylinder z 0 0 20 5 8 units box side out
+region          s2 cylinder z 0 0 24 5 8 units box side in
+region          s intersect 2 s1 s2
+#分组
+group           bot type 1 
+group           ball type 2
+group           s region s
+set             group s type 3
+#力场设置
+pair_style      eam
+pair_coeff      * * Cu_u3.eam
+#速度初始化
+velocity        ball create 300 9090
+velocity        bot set 0 0 0
+fix             001 bot setforce 0 0 0
+fix             002 ball move rotate 0.0 0.0 20 0.0 0.0 1.0 5.0
+dump            1 all atom 100 cu.lammpstrj
+run             5000

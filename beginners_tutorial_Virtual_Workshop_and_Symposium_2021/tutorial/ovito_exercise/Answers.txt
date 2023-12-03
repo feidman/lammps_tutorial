@@ -1,0 +1,11 @@
+Answers for Excercise viz
+
+See README.txt for tasks
+
+-------------------
+-------------------
+
+Answers to each of the () steps in README.txt are contained as screen captures
+in the Answers/ folder. If a step has multiple parts, the images are appended
+with a an additional number after the decimal i.e step 10, parts 1 and 2: 
+OVITO_Answers_10.1, OVITO_Answers_10.2

@@ -1,0 +1,148 @@
+LAMMPS (29 Oct 2020)
+# used for LJ potential test
+# following the blog: https://zhuanlan.zhihu.com/p/507732683
+# as the blog:
+
+#  **********
+# with pair_modify shift yes: the energy result 是连续的, 但force是不连续的
+# with pair_style lj/smooth/linear 2.5 used,则两者都将是连续的
+#
+# 自己测试的结果是不管用不用这两语句结果都是能量连续而力不连续
+# 2022.10.18
+#
+# *********
+
+# Lammps tutorial 01
+# //
+# https://lammpstutorials.github.io/tutorials/01-SimpleMolecularSimulation.html
+# //
+# 2022.10.19
+# ////////////////////////////////////////////
+
+
+
+
+# PART A - Energy MINIMIZATION
+# 1) Initialization
+units lj
+dimension 2
+atom_style atomic
+pair_style lj/smooth/linear 2.5 # comm:
+#pair_style lj/cut 2.5 # comm: lammps 中的LJ势能会做一个cut，原因是Lj本身会延伸到无穷远，导致每个原子都必须考虑和其它所有原子（而不是邻近原子）的相互作用力，因此计算量会很大，cut半径一般是2.5 sigma，此处LJ势能已经接近0了
+
+boundary p p p
+
+# 2) System definition
+region myreg block -30 30 -30 30 -0.5 0.5
+create_box 2 myreg
+Created orthogonal box = (-30.000000 -30.000000 -0.5) to (30.000000 30.000000 0.5)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 random 1500 341341 myreg
+Created 1500 atoms
+  create_atoms CPU = 0.000 seconds
+create_atoms 2 random 100 127569 myreg
+Created 100 atoms
+  create_atoms CPU = 0.000 seconds
+
+
+# 3) Simulation settings
+mass 1 1
+mass 2 1
+pair_coeff * * 1.0 1.0
+pair_coeff 2 2 0.5 3.0
+
+#pair_modify shift yes # from comm:
+
+# 如果邻居中的粒子已经不在r_c+skin范围内了，那么邻居列表就必须要更新了。当需要更新而未更新时就会出现Dangerous builds
+# During the simulation, they have been 998 dangerous builds. This is an indication that something is wrong: some atoms have moved more than expected in between two calculations of the neighbor lists. Let us add the following command in the 'Simulation settings' section:
+neigh_modify every 1 delay 5 check yes
+
+# 4) Visualization
+thermo 10
+pair_write 1 1 500 r 2.3 2.6 table.txt LJ
+Appending to table file table.txt with DATE: 2022-10-19
+Neighbor list info ...
+  update every 1 steps, delay 5 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 43 43 1
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/smooth/linear, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/2d/newton
+      bin: standard
+## // print thermo dynamics every 10 timestep
+
+# 5) Run
+minimize 1.0e-4 1.0e-6 1000 10000
+WARNING: Using 'neigh_modify every 1 delay 0 check yes' setting during minimization (../min.cpp:187)
+Per MPI rank memory allocation (min/avg/max) = 4.194 | 4.194 | 4.194 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0 4.4923799e+12            0 4.4923799e+12 1.197968e+13 
+      10            0     11685085            0     11685085     31162433 
+      20            0    5927.1371            0    5927.1371    15915.579 
+      30            0    95.076525            0    95.076525    276.01652 
+      40            0    1.1351674            0    1.1351674    9.8772569 
+      50            0   -1.2954701            0   -1.2954701 0.0079835776 
+      60            0   -1.4764891            0   -1.4764891  -0.33471231 
+      70            0   -1.6039262            0   -1.6039262  -0.29222117 
+      80            0   -1.6829644            0   -1.6829644  -0.26972834 
+      90            0   -1.7435459            0   -1.7435459  -0.23589239 
+     100            0   -1.7906491            0   -1.7906491  -0.22844952 
+     110            0   -1.8225982            0   -1.8225982  -0.21714219 
+     120            0   -1.8444031            0   -1.8444031  -0.19607983 
+     130            0   -1.8604846            0   -1.8604846  -0.20200976 
+     140            0   -1.8770849            0   -1.8770849  -0.20239923 
+     150            0   -1.8937534            0   -1.8937534  -0.18700618 
+     160            0   -1.9079301            0   -1.9079301  -0.18398957 
+     170            0   -1.9187283            0   -1.9187283  -0.17065784 
+     180            0   -1.9307932            0   -1.9307932   -0.1610529 
+     190            0    -1.943391            0    -1.943391  -0.16602478 
+     200            0   -1.9528011            0   -1.9528011  -0.15281638 
+     210            0   -1.9600479            0   -1.9600479  -0.14712456 
+     220            0   -1.9702536            0   -1.9702536  -0.15342874 
+     230            0   -1.9775061            0   -1.9775061  -0.14695301 
+     240            0   -1.9834012            0   -1.9834012  -0.14280339 
+     250            0   -1.9931295            0   -1.9931295  -0.14567487 
+     260            0   -2.0018361            0   -2.0018361  -0.13981246 
+     270            0   -2.0062223            0   -2.0062223  -0.13929402 
+     280            0   -2.0112844            0   -2.0112844  -0.13945635 
+     289            0   -2.0142375            0   -2.0142375    -0.135658 
+Loop time of 0.117202 on 1 procs for 289 steps with 1600 atoms
+
+99.6% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+      4492379896757.56  -2.01404278930859    -2.014237503882
+  Force two-norm initial, final = 1.1995747e+18 15.525222
+  Force max component initial, final = 6.9228787e+17 5.4509052
+  Final line search alpha, max atom move = 0.028368994 0.1546367
+  Iterations, force evaluations = 289 543
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.080519   | 0.080519   | 0.080519   |   0.0 | 68.70
+Neigh   | 0.021489   | 0.021489   | 0.021489   |   0.0 | 18.34
+Comm    | 0.0016603  | 0.0016603  | 0.0016603  |   0.0 |  1.42
+Output  | 0.00040984 | 0.00040984 | 0.00040984 |   0.0 |  0.35
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01312    |            |       | 11.20
+
+Nlocal:        1600.00 ave        1600 max        1600 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:        312.000 ave         312 max         312 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:        9019.00 ave        9019 max        9019 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 9019
+Ave neighs/atom = 5.6368750
+Neighbor list builds = 99
+Dangerous builds = 0
+
+Total wall time: 0:00:00

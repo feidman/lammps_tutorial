@@ -1,0 +1,15 @@
+LAMMPS (23 Jun 2022)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+# Deformation mechanisms during uniaxial tensile deformation of an amorphous polyethylene polymer.
+# Dr. Mark A. Tschopp, 2010.
+# VARIABLES
+variable fname index PE_nc10_cl1000.dat
+variable simname index PE_nc10_cl1000
+
+# Initialization
+units           real
+boundary        p p p
+atom_style  molecular
+log             log.${simname}.txt
+log             log.PE_nc10_cl1000.txt

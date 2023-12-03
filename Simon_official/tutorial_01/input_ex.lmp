@@ -1,0 +1,75 @@
+# Lammps tutorial 01
+#
+# //
+# https://lammpstutorials.github.io/tutorials/01-SimpleMolecularSimulation.html
+# //
+#
+# modified with some comments about LJ potential
+# // 
+# https://zhuanlan.zhihu.com/p/507732683
+# //
+#
+# 2023.11.30
+# ////////////////////////////////////////////
+# PART A - Energy MINIMIZATION
+# 1) Initialization
+units lj
+dimension 3
+atom_style atomic
+pair_style lj/cut 2.5
+boundary p p p
+
+# 2) System definition
+region simulation_box block -20 20 -20 20 -20 20
+create_box 2 simulation_box
+create_atoms 1 random 1500 341341 simulation_box
+create_atoms 2 random 100 127569 simulation_box
+
+
+# 3) Simulation settings
+mass 1 1
+mass 2 1
+pair_coeff 1 1 1.0 1.0 
+pair_coeff 2 2 0.5 3.0
+
+
+# 4) Visualization
+thermo 10
+
+# 5) Run
+minimize 1.0e-4 1.0e-6 1000 10000
+
+
+# PART B - MOLECULAR DYNAMICS
+# 3) Simulation settings
+group mytype1 type 1
+group mytype2 type 2
+
+
+# 4) Visualization
+thermo 1000
+thermo_style custom step temp pe ke etotal press
+
+
+compute coor12 mytype1 coord/atom cutoff 2.0 group mytype2
+compute sumcoor12 all reduce ave c_coor12
+fix myat3 all ave/time 10 200 2000 c_sumcoor12 file coordinationnumber12.dat
+
+
+
+variable kinetic_energy equal ke
+variable potential_energy equal pe
+variable pressure equal press
+
+#fix myat1 all ave/time 10 1 10 ke pe press file energy_new.dat (Error)
+#fix myat1 all ave/time 10 1 10 v_kinetic_energy v_potential_energy v_pressure file energy.dat
+#fix myat1 all ave/time  2 5 10 v_kinetic_energy v_potential_energy v_pressure file energy_new.dat
+# for visualization
+#dump mydmp all atom 1000 dump.lammpstrj
+
+# 5) Run
+velocity all create 1.0 4928345 mom yes rot yes dist gaussian
+fix mynve all nve
+fix mylgv all langevin 1.0 1.0 0.1 1530917
+timestep 0.005
+run 300000

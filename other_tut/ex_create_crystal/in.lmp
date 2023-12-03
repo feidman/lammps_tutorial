@@ -1,0 +1,18 @@
+# from
+# https://blog.sciencenet.cn/blog-3437453-1301615.html
+
+
+# LAMMPS input script fro building a face-centered-cubic single crystal
+
+# log         log.singlecrystal
+units       metal
+atom_style  atomic
+boundary    p p p
+lattice     fcc 8.5
+region      crystal_box block 0 2 0 2 0 2 units lattice
+create_box  1 crystal_box
+create_atoms 1 region crystal_box
+mass        1 100
+velocity    all create 300.0 12345
+write_dump  all custom dump.singlecrystal.lammpstrj id type x y z vx vy vz
+quit

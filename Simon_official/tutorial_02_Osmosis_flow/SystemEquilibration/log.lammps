@@ -1,0 +1,186 @@
+LAMMPS (29 Oct 2020)
+# System equilibration
+
+
+## Initialization
+
+boundary s p p
+pair_style lj/cut 2.5
+read_data ../SystemCreation/data.lammps
+Reading data file ...
+  orthogonal box = (-33.321069 -7.9370053 -7.9370053) to (33.321069 7.9370053 7.9370053)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  3000 atoms
+  reading velocities ...
+  3000 velocities
+  read_data CPU = 0.004 seconds
+
+
+## Region and groups
+region right block 0 INF INF INF INF INF
+
+# // Then, let us group the atoms into groups,
+# // which will allow us to control them separately
+group solid type 1 2 3
+1400 atoms in group solid
+group piston_left type 1
+600 atoms in group piston_left
+group membrane type 2
+200 atoms in group membrane
+group piston_right type 3
+600 atoms in group piston_right
+group fluid type 4 5
+1600 atoms in group fluid
+group solvent type 4
+1550 atoms in group solvent
+group solute type 5
+50 atoms in group solute
+
+
+## Small optimization
+# // Since we anticipate that the atoms of the solid will be frozen,
+# // we can ask LAMMPS to not build neighbor lists between the solid atoms
+# // (and save computational power):
+neigh_modify exclude group solid solid
+
+neigh_modify every 1 delay 5 check yes
+
+## Dynamics
+
+velocity fluid create 1.0 4928459 mom yes rot yes dist gaussian
+
+fix mynve all nve
+
+compute temperature_fluid fluid temp
+fix mylgv fluid langevin 1.0 1.0 0.1 1530917 zero yes
+fix_modify mylgv temp temperature_fluid
+
+fix mysf1 membrane setforce 0 0 0
+
+fix mysf2 piston_left setforce NULL 0 0
+fix mysf3 piston_right setforce NULL 0 0
+variable F equal 0.025
+fix myaf1 piston_left aveforce ${F} NULL NULL
+fix myaf1 piston_left aveforce 0.025 NULL NULL
+fix myaf2 piston_right aveforce -${F} NULL NULL
+fix myaf2 piston_right aveforce -0.025 NULL NULL
+
+
+## Outputs
+variable solvent_right equal count(solvent,right)
+variable solute_right equal count(solute,right)
+variable position_piston_left equal xcm(piston_left,x)
+variable position_piston_right equal xcm(piston_right,x)
+
+fix myat1 all ave/time 1000 1 1000 v_solvent_right file solvent_right.dat
+fix myat2 all ave/time 1000 1 1000 v_solute_right file solute_right.dat
+fix myat3 all ave/time 1000 1 1000 v_position_piston_left file position_piston_left.dat
+fix myat4 all ave/time 1000 1 1000 v_position_piston_right file position_piston_right.dat
+
+dump mydmp all atom 1000 dump.lammpstrj
+thermo_modify temp temperature_fluid
+WARNING: Temperature for thermo pressure is not for group all (../thermo.cpp:472)
+
+## Run
+thermo 10000
+run 500000
+Neighbor list info ...
+  update every 1 steps, delay 5 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 48 12 12
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 4.335 | 4.335 | 4.335 Mbytes
+Step Temp E_pair E_mol TotEng Press Volume 
+       0            1  -0.63192924            0   0.16757076  0.017485892    16792.445 
+   10000   0.98913219  -0.78711406            0 0.0036971251   0.04221974    15149.312 
+   20000    1.0043569  -0.84929942            0 -0.046316078  0.052180549    14884.678 
+   30000    0.9671501  -0.85380158            0 -0.080565072  0.049062944    14838.249 
+   40000   0.98086287  -0.92267958            0  -0.13847971  0.041527973    14720.522 
+   50000   0.98675615   -0.9250942            0  -0.13618265  0.038449592    14660.278 
+   60000   0.96922512  -0.96932412            0  -0.19442864  0.035915935    14576.201 
+   70000   0.97154924  -0.96433232            0   -0.1875787  0.020763985    14581.028 
+   80000    1.0216048  -0.98421597            0  -0.16744292  0.036809776    14532.683 
+   90000    1.0057665  -0.98794612            0  -0.18383577  0.044700455    14386.576 
+  100000   0.98660242    -1.055359            0  -0.26657036  0.019607601    14153.004 
+  110000   0.98134823  -0.99270666            0  -0.20811874  0.044401869    14144.307 
+  120000    1.0014105   -1.0086443            0  -0.20801656  0.031799076    14059.601 
+  130000    1.0035156   -1.0197278            0  -0.21741702  0.042625773    14267.026 
+  140000    1.0299099   -1.0302797            0  -0.20686672  0.042009203    14278.455 
+  150000   0.98588666   -1.0225367            0  -0.23432031  0.043632322    14075.093 
+  160000   0.97622892   -1.0347975            0  -0.25430252  0.044519149    14164.884 
+  170000    1.0082937    -1.096071            0  -0.28994024  0.038462288    14204.131 
+  180000   0.98565291   -1.0283971            0  -0.24036759  0.031942076     14340.13 
+  190000    1.0086906   -1.0433588            0  -0.23691064  0.038790467    14517.262 
+  200000    1.0248187   -1.0082508            0  -0.18890818  0.039209406     14662.87 
+  210000   0.96681227   -1.0137929            0  -0.24082653  0.035479415    14613.194 
+  220000   0.99737138   -1.1056971            0  -0.30829869  0.032768546    14372.741 
+  230000    1.0070268   -1.0478612            0   -0.2427433  0.044401295    14384.894 
+  240000   0.98833979   -1.0553124            0  -0.26513473  0.033640586    14383.226 
+  250000   0.96831263   -1.0631527            0  -0.28898672  0.029394777    14308.972 
+  260000   0.99485199   -1.1067041            0  -0.31131996  0.040524547     14236.26 
+  270000   0.99237443   -1.0778365            0  -0.28443317  0.040229733    14383.552 
+  280000   0.98243867   -1.1021621            0  -0.31670243  0.038163287    14265.967 
+  290000    1.0058321   -1.0501737            0  -0.24601095  0.040323942    14352.812 
+  300000   0.99351325   -1.0723739            0  -0.27806001  0.037323093    14304.672 
+  310000    1.0055098   -1.0596358            0  -0.25573071  0.030386939    14322.062 
+  320000   0.99880037   -1.0930671            0  -0.29452622  0.012630314    14213.777 
+  330000   0.96498298    -1.131978            0  -0.36047408  0.047927066    14030.604 
+  340000    1.0067482   -1.1243371            0  -0.31944187  0.031203975     14049.38 
+  350000    0.9957616   -1.0999803            0  -0.30386886  0.031241116    14221.815 
+  360000   0.98682149   -1.1274464            0  -0.33848259  0.026505511    14129.775 
+  370000    1.0137489   -1.1293388            0  -0.31884653  0.049882051    14110.606 
+  380000    1.0072357   -1.1208596            0  -0.31557467  0.040123191    14054.595 
+  390000    0.9991774   -1.1165924            0  -0.31775005  0.028378856    14054.378 
+  400000    1.0109499   -1.1522893            0  -0.34403483  0.028858564    13925.952 
+  410000   0.99883672   -1.1484416            0  -0.34987163  0.036011003    14034.708 
+  420000   0.99418663   -1.1639318            0  -0.36907954  0.028961943    14135.423 
+  430000   0.97729526   -1.1399182            0   -0.3585706  0.057607365    14212.958 
+  440000     1.018756     -1.15656            0  -0.34206464  0.031967475      14147.1 
+  450000    1.0255405   -1.1736532            0  -0.35373362    0.0486086    14170.321 
+  460000   0.97251674   -1.1472045            0  -0.36967731  0.020339115     14285.39 
+  470000    0.9839536   -1.1764367            0  -0.38976575  0.040337695    14179.562 
+  480000    1.0301447   -1.1788694            0  -0.35526875  0.048321444    14227.938 
+  490000   0.99844999    -1.109939            0   -0.3116782  0.046323679    14213.205 
+  500000    1.0133252   -1.1471134            0  -0.33695991  0.025436528    14297.992 
+Loop time of 257.28 on 1 procs for 500000 steps with 3000 atoms
+
+Performance: 839552.659 tau/day, 1943.409 timesteps/s
+99.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 106.82     | 106.82     | 106.82     |   0.0 | 41.52
+Neigh   | 105.37     | 105.37     | 105.37     |   0.0 | 40.95
+Comm    | 5.6503     | 5.6503     | 5.6503     |   0.0 |  2.20
+Output  | 0.65694    | 0.65694    | 0.65694    |   0.0 |  0.26
+Modify  | 35.6       | 35.6       | 35.6       |   0.0 | 13.84
+Other   |            | 3.181      |            |       |  1.24
+
+Nlocal:        3000.00 ave        3000 max        3000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:        2485.00 ave        2485 max        2485 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:        25563.0 ave       25563 max       25563 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 25563
+Ave neighs/atom = 8.5210000
+Neighbor list builds = 62422
+Dangerous builds = 0
+write_data data.lammps pair ij
+System init for write_data ...
+
+
+
+
+
+Total wall time: 0:04:17

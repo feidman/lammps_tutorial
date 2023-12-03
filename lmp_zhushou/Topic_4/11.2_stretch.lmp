@@ -1,0 +1,49 @@
+
+# lmp zhushou
+# Lu Junyao
+# 11.2 拉伸
+
+dimension   3
+boundary    s s s
+units       metal
+atom_style  atomic
+neighbor    3.0 bin
+neigh_modify every 1 delay 0 check yes
+pair_style  eam
+
+
+region box  block 0 119.295 0 36.15 0 36.15 units box
+create_box  1 box
+lattice fcc     3.615
+region Cu block 0 119.295 0 36.15 0 36.15 units box
+create_atoms 1 region Cu
+
+pair_coeff * * Cu_u3.eam
+
+region left block INF 0.1 INF INF INF INF units box
+group left region left
+
+region right block 119.1 INF INF INF INF INF units box
+group right region right
+
+group cu subtract all left right
+
+
+timestep 0.002
+thermo 100
+thermo_style custom step temp pxx pyy pzz
+thermo_modify flush yes
+
+
+velocity cu create 300 5645354 loop local dist gaussian rot yes
+dump mydump1 all atom 10000 atom1.lammpstrj
+
+
+fix fixnvt cu nvt temp 300.0 300.0 0.2
+
+
+run 10000
+
+fix 1 right move linear 0.01 0.0 0.0
+
+run 1500000

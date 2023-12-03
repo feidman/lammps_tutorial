@@ -1,0 +1,25 @@
+*******
+need analysis the results
+******
+
+
+// exercise
+// from lmmpas tube
+// https://lammpstube.com/2020/12/04/deformation-mechanisms-of-polyethylene/
+
+// more lammps input on lammpstube
+// https://lammpstube.com/category/blog/lammps-inputs/
+
+// Title
+// Simulation of Deformation Behavior in Amorphous Polymer
+
+This is a LAMMPS input to study deformation mechanisms during uniaxial tensile deformation of an amorphous polyethylene polymer. The stress-strain behavior comprised elastic, yield, strain softening and strain hardening regions that were qualitatively in agreement with previous simulations and experimental results.
+1. In this LAMMPS input, “Initialization” section defines the style of units, the dimension (3D here), and LAMMPS data file reading.
+2. We need to define the interatomic potentials for particles interactions. Simulation is run with the DREIDING interatomic potential in this study.
+3. It’s now time for simulation to actually run, which begins with the energy equilibration. The simulated polymeric structure has to be equilibrated before the deformation in 4 stages. 
+4. “Deform section” is last section of the simulation, but not the least. This is where deformation is actually carried out. Different variables such as strain rate, pressures, stress has been defined and then later printed in the log files.
+
+Here is an example “data file” for a polyethylene system with 10 chains of 1000 monomers each. Download this file and add this to the directory with the LAMMPS input script above: Media:PE_nc10_cl1000.dat
+
+
+

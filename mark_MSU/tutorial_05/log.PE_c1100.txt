@@ -1,0 +1,239 @@
+read_data ${fname}
+read_data PE_cl100.txt
+Reading data file ...
+  orthogonal box = (0 0 0) to (158.5 158.5 100)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  100 atoms
+  scanning bonds ...
+  1 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  scanning dihedrals ...
+  1 = max dihedrals/atom
+  reading bonds ...
+  99 bonds
+  reading angles ...
+  98 angles
+  reading dihedrals ...
+  97 dihedrals
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     2 = max # of 1-2 neighbors
+     2 = max # of 1-3 neighbors
+     4 = max # of 1-4 neighbors
+     6 = max # of special neighbors
+  special bonds CPU = 0.000 seconds
+  read_data CPU = 0.006 seconds
+
+
+###################################
+# Define potential
+neighbor 0.4 bin
+neigh_modify every 10 one 10000
+bond_style  harmonic
+bond_coeff  1 350 1.53
+
+angle_style harmonic
+angle_coeff 1 60 109.5
+
+dihedral_style  multi/harmonic
+dihedral_coeff  1 1.73 -4.49 0.776 6.99 0.0
+
+pair_style  lj/cut  10.5
+pair_coeff  1 1 0.112 4.01 10.5
+
+
+
+###################################
+# define compute
+compute csym all centro/atom fcc
+compute peratom all pe/atom
+compute eng all pe/atom
+compute eatoms all reduce sum c_eng
+
+
+
+
+###################################
+# Equilibrtion
+# langevin dynamics at 500 k
+
+velocity all create 500.0 1231
+fix 1 all nve/limit 0.05
+fix 2 all langevin 500.0 500.0 10.0 904297
+
+thermo_style custom step temp
+thermo  100
+timestep 1
+run 10000
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 10 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 10000, page size: 100000
+  master list distance cutoff = 10.9
+  ghost atom cutoff = 10.9
+  binsize = 5.45, bins = 30 30 19
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) compute centro/atom, occasional
+      attributes: full, newton on
+      pair build: full/bin
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 8.099 | 8.099 | 8.099 Mbytes
+   Step          Temp     
+         0   500          
+       100   679.10043    
+       200   611.54642    
+       300   641.48308    
+       400   550.28444    
+       500   618.64162    
+       600   574.90254    
+       700   579.6052     
+       800   560.73043    
+       900   589.98744    
+      1000   429.95347    
+      1100   540.84598    
+      1200   571.10339    
+      1300   515.45725    
+      1400   590.32144    
+      1500   545.06421    
+      1600   525.49468    
+      1700   641.66642    
+      1800   629.51826    
+      1900   529.13537    
+      2000   587.15636    
+      2100   579.09598    
+      2200   516.16292    
+      2300   568.44108    
+      2400   510.74808    
+      2500   568.28071    
+      2600   566.84316    
+      2700   424.97451    
+      2800   509.65558    
+      2900   660.1342     
+      3000   518.6186     
+      3100   581.76475    
+      3200   585.22442    
+      3300   480.70202    
+      3400   567.63538    
+      3500   596.75494    
+      3600   541.14352    
+      3700   478.60105    
+      3800   531.73688    
+      3900   523.91918    
+      4000   505.85932    
+      4100   618.09178    
+      4200   517.70664    
+      4300   615.2756     
+      4400   508.2206     
+      4500   526.21919    
+      4600   511.86477    
+      4700   566.68262    
+      4800   521.48111    
+      4900   558.9255     
+      5000   589.97877    
+      5100   526.12526    
+      5200   518.28703    
+      5300   533.3145     
+      5400   476.83486    
+      5500   548.01645    
+      5600   498.73744    
+      5700   595.52205    
+      5800   575.9437     
+      5900   545.01307    
+      6000   548.63026    
+      6100   521.95715    
+      6200   477.77285    
+      6300   438.92221    
+      6400   473.06068    
+      6500   515.93384    
+      6600   488.60385    
+      6700   445.23567    
+      6800   552.62501    
+      6900   566.43421    
+      7000   509.95734    
+      7100   531.26926    
+      7200   577.62881    
+      7300   479.27758    
+      7400   506.73024    
+      7500   537.55261    
+      7600   517.49232    
+      7700   506.6552     
+      7800   509.91288    
+      7900   550.03833    
+      8000   510.43975    
+      8100   490.94551    
+      8200   549.97739    
+      8300   477.72934    
+      8400   444.64217    
+      8500   527.10749    
+      8600   548.42555    
+      8700   489.16576    
+      8800   512.61258    
+      8900   526.27395    
+      9000   469.68818    
+      9100   493.7436     
+      9200   519.58576    
+      9300   608.3647     
+      9400   515.1291     
+      9500   538.39326    
+      9600   512.47775    
+      9700   557.559      
+      9800   516.10086    
+      9900   529.32883    
+     10000   490.20334    
+Loop time of 0.175508 on 1 procs for 10000 steps with 100 atoms
+
+Performance: 4922.856 ns/day, 0.005 hours/ns, 56977.494 timesteps/s, 5.698 Matom-step/s
+99.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.030512   | 0.030512   | 0.030512   |   0.0 | 17.39
+Bond    | 0.10834    | 0.10834    | 0.10834    |   0.0 | 61.73
+Neigh   | 0.011994   | 0.011994   | 0.011994   |   0.0 |  6.83
+Comm    | 0.001186   | 0.001186   | 0.001186   |   0.0 |  0.68
+Output  | 0.00035734 | 0.00035734 | 0.00035734 |   0.0 |  0.20
+Modify  | 0.020795   | 0.020795   | 0.020795   |   0.0 | 11.85
+Other   |            | 0.00232    |            |       |  1.32
+
+Nlocal:            100 ave         100 max         100 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            399 ave         399 max         399 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:            0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 399
+Ave neighs/atom = 3.99
+Ave special neighs/atom = 5.88
+Neighbor list builds = 518
+Dangerous builds = 40
+unfix 1
+unfix 2
+write_restart restart.${simname}.dreiding1
+write_restart restart.PE_c1100.dreiding1
+System init for write_restart ...
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+
+###################################
+# mini
+#
+dump 1 all movie 10 movie.mpg type type zoom 1.6 adiam 1.5
+dump_modify 1 pad 5
+
+dump 2 all atom 10 pe.lammpstrj
+
+dump 1 all cfgI#
+ERROR: Illegal dump command (src/output.cpp:737)
+Last command: dump 1 all cfgI#

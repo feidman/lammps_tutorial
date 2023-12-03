@@ -1,0 +1,160 @@
+LAMMPS (3 Nov 2022)
+# This LAMMPS input script simulates the dissolution of a salt crystal in water
+# Tested with the 30Jul2021 version of LAMMPS
+# Written by Simon Gravelle (https://simongravelle.github.io/)
+# Find more scripts here: https://github.com/simongravelle/lammps-input-files
+# LAMMPS tutorials for beginners: https://lammpstutorials.github.io/
+
+# basic parameters
+# tip4p/epsilon water model is used
+units real
+atom_style full
+bond_style harmonic
+angle_style harmonic
+boundary p p p
+pair_style lj/cut/tip4p/long 1 2 1 1 0.105 12.0
+kspace_style pppm/tip4p 1.0e-4
+
+# read data and parameters files
+read_data data.lammps
+Reading data file ...
+  orthogonal box = (-21.195284 -21.195284 -21.195284) to (21.195284 21.195284 21.195284)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  7982 atoms
+  reading velocities ...
+  7982 velocities
+  scanning bonds ...
+  2 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  reading bonds ...
+  5288 bonds
+  reading angles ...
+  2644 angles
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     2 = max # of 1-2 neighbors
+     1 = max # of 1-3 neighbors
+     1 = max # of 1-4 neighbors
+     2 = max # of special neighbors
+  special bonds CPU = 0.002 seconds
+  read_data CPU = 0.046 seconds
+include PARM.lammps
+# Mass
+mass 1 15.9994 # O (water TIP4P/2005)
+mass 2 1.008 # H (water TIP4P/2005)
+mass 3 22.989770 # NA
+mass 4 35.450000 # CL
+
+# Pair Coeff
+pair_coeff 1 1 0.18481 3.165
+pair_coeff 2 2 0.0 0.0
+pair_coeff 3 3 0.10755 2.31
+pair_coeff 4 4 0.10038 4.3
+
+# Bond
+bond_coeff 1 0 0.9572
+
+# Angle
+angle_coeff 1 0 104.52
+
+# define groups
+group wat type 1 2
+7932 atoms in group wat
+group salt type 3 4 # Na = type 3 and Cl = type 4
+50 atoms in group salt
+
+# maintain the shape of the water molecules
+fix myshk wat shake 1.0e-4 200 0 b 1 a 1
+Finding SHAKE clusters ...
+       0 = # of size 2 clusters
+       0 = # of size 3 clusters
+       0 = # of size 4 clusters
+    2644 = # of frozen angles
+  find clusters CPU = 0.002 seconds
+# use NPT with isotropic pressure control
+fix mynpt all npt temp 360 360 100 iso 1 1 1000
+timestep 1.0
+# keep salt at the center of the box
+fix myrct salt recenter INIT INIT INIT
+
+# dump atom positions every 50 ps and log info every 5 ps
+dump dp1 all atom 50000 dump.lammpstrj
+thermo 5000
+
+# run for 25 ns
+run 25000000
+PPPM initialization ...
+  extracting TIP4P info from pair style
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.22620107
+  grid = 20 20 20
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.030920977
+  estimated relative force accuracy = 9.3117603e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 19683 8000
+WARNING: Communication cutoff 0 is shorter than a bond length based estimate of 3.4358. This may lead to errors. (src/comm.cpp:723)
+WARNING: Increasing communication cutoff to 15.0622 for TIP4P pair style (src/KSPACE/pair_lj_cut_tip4p_long.cpp:484)
+Generated 6 of 6 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14.21
+  ghost atom cutoff = 15.0622
+  binsize = 7.105, bins = 6 6 6
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/tip4p/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 47.04 | 47.04 | 47.04 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press          Volume    
+         0   295.97959     -36057.222      0             -31348.606      755.67278      76174.167    
+      5000   361.45974     -34042.189      0             -28291.877      66.719988      83458.899    
+     10000   356.85795     -33974.636      0             -28297.531     -187.08331      83325.165    
+     15000   359.15697     -34204.542      0             -28490.863     -209.81785      83693.237    
+     20000   364.44637     -34446.937      0             -28649.112      522.6013       82655.1      
+     25000   362.81261     -34523.68       0             -28751.845      146.65175      82455.296    
+     30000   361.65979     -33989.378      0             -28235.883     -28.977094      83213.866    
+     35000   359.54891     -34206.147      0             -28486.233      243.87258      83247.858    
+     40000   361.8407      -34185.925      0             -28429.552     -388.43937      83428.808    
+     45000   357.82048     -34093.143      0             -28400.726     -568.17761      83109.22     
+     50000   368.72633     -34452.827      0             -28586.914     -414.71003      83323.324    
+     55000   355.18309     -34139.376      0             -28488.916      29.337735      84196.409    
+     60000   357.4258      -34249.109      0             -28562.971      22.680673      83575.124    
+     65000   356.25945     -34635.326      0             -28967.743     -636.91264      83416.54     
+     70000   358.781       -34308.267      0             -28600.57       143.20939      83367.149    
+     75000   362.54613     -34473.318      0             -28705.723      87.483071      82856.879    
+     80000   359.69153     -34282.228      0             -28560.045     -349.23651      82862.232    
+     85000   353.93292     -34158.384      0             -28527.812     -173.57619      83628.267    
+     90000   357.46653     -34158.747      0             -28471.961      97.087645      82512.338    
+     95000   355.07751     -34156.661      0             -28507.881      271.3711       83303.658    
+    100000   365.98194     -34057.614      0             -28235.36       455.42362      83000.424    
+    105000   361.56311     -34157.287      0             -28405.33      -528.06982      82944.549    
+    110000   360.9591      -34188.175      0             -28445.827     -135.61193      82965.2      
+    115000   358.47514     -34129.965      0             -28427.133      256.44421      82612.184    
+    120000   367.89805     -34136.645      0             -28283.908      92.419942      82789.752    
+    125000   353.44806     -34316.025      0             -28693.167     -458.21443      83020.235    
+    130000   360.2364      -34084.462      0             -28353.611      438.40172      82966.798    
+    135000   358.84607     -34067.081      0             -28358.348      143.12161      83077.787    
+    140000   369.36581     -33814.891      0             -27938.804      162.7345       83475.836    
+    145000   355.45924     -34118.943      0             -28464.09      -200.92714      83001.66     
+    150000   354.28717     -34160.394      0             -28524.187      447.67269      83145.528    
+    155000   360.77607     -34295.291      0             -28555.854      127.05735      83243.542    
+    160000   355.13158     -34213.278      0             -28563.638     -94.558861      83667.911    
+    165000   357.93067     -34151.293      0             -28457.123      46.525306      83732.484    
+    170000   363.87825     -34063.995      0             -28275.207      168.42401      83323.548    
+    175000   356.69752     -34023.439      0             -28348.887     -45.292948      83111.991    
+    180000   355.94391     -34112.834      0             -28450.27      -338.53914      83731.441    
+    185000   369.01449     -34262.29       0             -28391.793     -327.89419      84153.958    
+    190000   355.5516      -33994.557      0             -28338.235      9.9356948      83911.069    
+    195000   360.42104     -34119.791      0             -28386.003      206.73503      83568.032    
+    200000   355.80793     -34112.089      0             -28451.688      191.82946      83050.088    
+    205000   359.8635      -34311.017      0             -28586.099     -148.77366      83223.653    
+    210000   358.98724     -34189.688      0             -28478.709     -145.18316      82789.194    
+    215000   362.45524     -34104.255      0             -28338.105     -28.114333      83346.251    
+   

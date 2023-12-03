@@ -1,0 +1,66 @@
+# System creation
+
+## Simulation initialization
+
+boundary s p p
+pair_style lj/cut 2.5
+
+
+# // Note that we did not set the units, atom_style, or dimension of the simulation,
+# // as is common to do. 
+# // In that case, the default value of LAMMPS are used,
+# // respectively lj, atomic, and 3 (for 3D).
+
+
+## Region creation
+
+### System definition
+lattice fcc 1
+region simulation_box block -23 23 -5 5 -5 5
+create_box 5 simulation_box
+
+
+# // The "5" in create_box indicates that the simulation will contain 5 types of atoms
+# // define 5 regions that will be used to place the atoms.
+
+region piston_left block -21 -20 INF INF INF INF
+region fluid_left block -18 -2 INF INF INF INF
+region membrane block -0.25 0.25 INF INF INF INF
+region fluid_right block 2 18 INF INF INF INF 
+region piston_right block 20 21 INF INF INF INF
+
+# // With the INF keyword (here used for y and z axis), 
+# // the region encompasses the whole simulation box.
+
+## Place the atoms
+
+create_atoms 1 region piston_left
+create_atoms 2 region membrane
+create_atoms 3 region piston_right
+create_atoms 4 random 1000 654514 fluid_left
+create_atoms 4 random 550 654514 fluid_right
+create_atoms 5 random 50 424514 fluid_right
+
+## Settings
+
+# // simulation settings
+mass * 1
+pair_coeff 1*3 1*3 1.0 1.0 # // solid-solid
+pair_coeff 4 4 1.0 1.0 # // solvent-solvent
+pair_coeff 5 5 2.0 3.0 # // solute-solute
+
+pair_coeff 1*3 4 0.8 1 # // solid-solvent
+
+pair_coeff 2 5 0.1 3.0 # // membrance-solute
+
+# // this part is not well understood
+
+## Output and run
+ 
+# // output
+dump mydmp all atom 1 dump.lammpstrj
+thermo 10
+
+# // run
+minimize 1.0e-4 1.0e-6 1000 10000
+write_data data.lammps pair ij

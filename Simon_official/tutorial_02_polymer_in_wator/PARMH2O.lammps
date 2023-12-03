@@ -1,0 +1,9 @@
+mass 1 15.9994 # H2O O
+mass 2 1.008 # H2O H
+
+pair_coeff 1 1 0.119431704 3.400251
+pair_coeff 2 2 0.0 0.0
+
+bond_coeff 1 442.1606 0.972
+
+angle_coeff 1 47.555878 103.0
