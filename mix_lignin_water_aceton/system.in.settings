@@ -1,0 +1,50 @@
+bond_coeff   1         450.0  0.9572
+angle_coeff  1       55.0   104.52 0 0
+
+# Note: Since we are using RATTLE constraints, the bond and angle strength
+# parameters ("450.0", "55.0") do not matter.  But the equilibrium bond
+# length ("0.9572") and equilibrium angle ("104.52") does matter.  LAMMPS
+# obtains these numbers from the bond_coeff and angle_coeff commands.
+
+#########################################################################
+####  There are two choices for for the O-O interactions
+#########################################################################
+####  O-O nonbonded interactions
+
+#   For the 1983 Jorgensen version of TIP3P use:
+pair_coeff  1  1   0.1521 3.1507
+
+#   For the 2004 Price & Brooks version of TIP3P use:
+#pair_coeff  @atom:O  @atom:O   0.102 3.188
+
+#########################################################################
+####  There are three choices for for the O-H and H-H interactions
+#########################################################################
+#### 1) The original Jorgensen 1983 and 2004 Price & Brooks models have no
+#     mixed OH or HH interactions. For this behavior, uncomment these lines:
+#pair_coeff  @atom:H  @atom:H   0.00 0.4000
+#pair_coeff  @atom:O  @atom:H   0.00 1.7753
+#########################################################################
+#### 2) CHARMM uses an arithmetic mixing-rule for the O-H sigma parameter
+pair_coeff  2  2   0.0460 0.4000
+pair_coeff  1  2   0.0836 1.7753 #arithmetic
+#########################################################################
+#### 3) OPLS-AA uses geometric a mixing-fule for the O-H sigma parameter,
+####    If you want to use this, uncomment the following two lines:
+#pair_coeff  @atom:H  @atom:H   0.0460 0.4000
+#pair_coeff  @atom:O  @atom:H   0.0836 1.1226 #geometric
+#########################################################################
+pair_coeff 3 3 0.024 2.38760856462 0.024 2.38760856462
+pair_coeff 4 4 0.09 3.56359487256 0.09 3.56359487256
+pair_coeff 5 5 0.078 3.65268474438 0.01 3.38541512893
+pair_coeff 6 6 0.05 3.02905564168 0.12 2.49451641079
+bond_coeff 2 330 1.5
+bond_coeff 3 700 1.23
+bond_coeff 4 322 1.111
+angle_coeff 2 50 109.5 0 0
+angle_coeff 3 35 115.6 0 0
+angle_coeff 4 75 122.2 0 0
+angle_coeff 5 35.5 108.4 5.4 1.802
+dihedral_coeff 1 0.1 3 0 1
+dihedral_coeff 2 0 3 0 1
+improper_coeff 1 70 0

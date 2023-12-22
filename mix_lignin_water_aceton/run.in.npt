@@ -1,0 +1,50 @@
+# PREREQUISITES:
+#
+#     You must use moltemplate.sh to create 3 files:
+#        system.data  system.in.init  system.in.settings
+#     (Follow the instructions in README_setup.sh, 
+#      or run the file as a script using ./README_setup.sh)
+#
+# ------------------------------- Initialization Section --------------------
+
+include     "system.in.init"         # specify the style of force field used
+
+# ------------------------------- Atom Definition Section -------------------
+
+read_data   "system.data"            # load atom coordinates and topology
+
+# ------------------------------- Settings Section --------------------------
+
+include      "system.in.settings"    # load the force field parameters
+
+# ------------------------------- Run Section -------------------------------
+
+
+# -- minimization protocol --
+
+minimize 1.0e-4 1.0e-6 100000 400000
+
+# (Apply constraints after minimization and after other fixes which exert force)
+include         system.in.constraints
+
+
+# -- simulation protocol --
+
+
+timestep     1.0
+
+thermo       100
+#thermo_modify flush yes
+
+dump         1 all custom 2000 traj_npt.lammpstrj id mol type x y z ix iy iz
+
+thermo_style custom step temp ke pe etotal epair ebond eangle edihed press vol
+
+fix          fxnpt all npt temp 300.0 300.0 100.0 iso 1.0 1.0 1000.0 drag 1.0
+
+include      "system.in.constraints" # apply constraints (after minimization
+                                     # and after all integration fixes)
+
+run          200000
+
+write_data   "system_after_npt.data"
